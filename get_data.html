@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>get_data &#8212; astronomy-anomaly 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="impute" href="impute.html" />
+    <link rel="prev" title="detect_anomaly" href="detect_anomaly.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="impute.html" title="impute"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="detect_anomaly.html" title="detect_anomaly"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-get_data">
+<span id="get-data"></span><h1>get_data<a class="headerlink" href="#module-get_data" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="get_data.fix_random_seed">
+<code class="sig-prename descclassname">get_data.</code><code class="sig-name descname">fix_random_seed</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">seed</span><span class="p">:</span> <span class="n">int</span> <span class="o">=</span> <span class="default_value">42</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/get_data.html#fix_random_seed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#get_data.fix_random_seed" title="Permalink to this definition">¶</a></dt>
+<dd><p>乱数のシードを固定する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>seed</strong> (<em>int</em>) – 乱数のシード。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="get_data.get_ididx_mjdcols_dataframe">
+<code class="sig-prename descclassname">get_data.</code><code class="sig-name descname">get_ididx_mjdcols_dataframe</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">df_source</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/get_data.html#get_ididx_mjdcols_dataframe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#get_data.get_ididx_mjdcols_dataframe" title="Permalink to this definition">¶</a></dt>
+<dd><p>df_source の unique な objectid を index、mjd を columns とした
+pandas.DataFrame を作成し、df の m_ap30 の値を埋めたものを返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – 埋める m_ap30 の値を保持した表。</p></li>
+<li><p><strong>df_source</strong> (<em>pandas.DataFrame</em>) – 返り値の index となる objectid と、columns となる mjd を保持した表。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df_return</strong> – df_source の unique な objectid を index、mjd を columns とした
+pandas.DataFrame で、df の m_ap30 の値を埋めたもの。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="get_data.get_unique_list">
+<code class="sig-prename descclassname">get_data.</code><code class="sig-name descname">get_unique_list</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">col</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span> &#x2192; numpy.ndarray<a class="reference internal" href="_modules/get_data.html#get_unique_list"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#get_data.get_unique_list" title="Permalink to this definition">¶</a></dt>
+<dd><p>指定した pandas.DataFrame のカラムの unique なリストを、
+昇順にソートしたものを返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame</em>) – 目的の表。</p></li>
+<li><p><strong>col</strong> (<em>str</em>) – 目的のカラム名。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>unique_list</strong> – 指定した pandas.DataFrame のカラムの unique なリストを、
+昇順にソートしたもの。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy.ndarray</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="get_data.load_input_csv">
+<code class="sig-prename descclassname">get_data.</code><code class="sig-name descname">load_input_csv</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">input_filepath</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">usecols</span><span class="p">:</span> <span class="n">List<span class="p">[</span>str<span class="p">]</span></span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/get_data.html#load_input_csv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#get_data.load_input_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>入力 csv ファイルを、必要な columns を選択して読み込む。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>input_filepath</strong> (<em>str</em>) – 入力 csv ファイルへのパス。</p></li>
+<li><p><strong>usecols</strong> (<em>list of str</em>) – 必要なカラム名。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df_orig</strong> – 入力 csv ファイルの、選択した columns の表。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="detect_anomaly.html"
+                        title="previous chapter">detect_anomaly</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="impute.html"
+                        title="next chapter">impute</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/get_data.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="impute.html" title="impute"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="detect_anomaly.html" title="detect_anomaly"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, goat1010.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

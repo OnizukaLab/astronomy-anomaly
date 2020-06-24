@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>transform &#8212; astronomy-anomaly 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="visualize" href="visualize.html" />
+    <link rel="prev" title="neighbor" href="neighbor.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="visualize.html" title="visualize"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="neighbor.html" title="neighbor"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-transform">
+<span id="transform"></span><h1>transform<a class="headerlink" href="#module-transform" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="transform.convert_date_into_mjd">
+<code class="sig-prename descclassname">transform.</code><code class="sig-name descname">convert_date_into_mjd</code><span class="sig-paren">(</span><em class="sig-param">date_st: str</em>, <em class="sig-param">date_en: str) -&gt; (&lt;class 'int'&gt;</em>, <em class="sig-param">&lt;class 'int'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/transform.html#convert_date_into_mjd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transform.convert_date_into_mjd" title="Permalink to this definition">¶</a></dt>
+<dd><p>‘%Y-%m-%d’ 形式の str を mjd に変換する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>date_st</strong> (<em>str</em>) – ‘%Y-%m-%d’ 形式の文字列。</p></li>
+<li><p><strong>date_en</strong> (<em>str</em>) – ‘%Y-%m-%d’ 形式の文字列。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>mjd_st</strong> (<em>int</em>) – date_st を mjd に変換したもの。</p></li>
+<li><p><strong>mjd_en</strong> (<em>int</em>) – date_en を mjd に変換したもの。</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="transform.convert_to_DatetimeIndex">
+<code class="sig-prename descclassname">transform.</code><code class="sig-name descname">convert_to_DatetimeIndex</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span> &#x2192; None<a class="reference internal" href="_modules/transform.html#convert_to_DatetimeIndex"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transform.convert_to_DatetimeIndex" title="Permalink to this definition">¶</a></dt>
+<dd><p>入力された pandas.DataFrame の index を mjd から DatetimeIndex に変換する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_mjds</em><em>, </em><em>n_objects</em><em>)</em>) – m_ap30 の表。</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="transform.transform_dataframe_to_centering">
+<code class="sig-prename descclassname">transform.</code><code class="sig-name descname">transform_dataframe_to_centering</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em><span class="sig-paren">)</span> &#x2192; pandas.core.frame.DataFrame<a class="reference internal" href="_modules/transform.html#transform_dataframe_to_centering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#transform.transform_dataframe_to_centering" title="Permalink to this definition">¶</a></dt>
+<dd><p>object ごとに m_ap30 の値を中央揃え（平均値を 0）にする。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_objects</em><em>, </em><em>n_mjds</em><em>)</em>) – m_ap30 の表。</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df_center</strong> – object ごとに m_ap30 の値を中央揃え（平均値を 0）にした m_ap30 の表。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame of shape (n_objects, n_mjds)</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="neighbor.html"
+                        title="previous chapter">neighbor</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="visualize.html"
+                        title="next chapter">visualize</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/transform.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="visualize.html" title="visualize"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="neighbor.html" title="neighbor"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, goat1010.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>my_kmeans &#8212; astronomy-anomaly 1.0.0 documentation</title>
+    <link rel="stylesheet" href="_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="neighbor" href="neighbor.html" />
+    <link rel="prev" title="impute" href="impute.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="neighbor.html" title="neighbor"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="impute.html" title="impute"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-my_kmeans">
+<span id="my-kmeans"></span><h1>my_kmeans<a class="headerlink" href="#module-my_kmeans" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="my_kmeans.elbow">
+<code class="sig-prename descclassname">my_kmeans.</code><code class="sig-name descname">elbow</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">ax</span></em>, <em class="sig-param"><span class="n">k_min</span><span class="o">=</span><span class="default_value">1</span></em>, <em class="sig-param"><span class="n">k_max</span><span class="o">=</span><span class="default_value">10</span></em>, <em class="sig-param"><span class="n">random_state</span><span class="o">=</span><span class="default_value">42</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/my_kmeans.html#elbow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#my_kmeans.elbow" title="Permalink to this definition">¶</a></dt>
+<dd><p>エルボー法の結果を可視化する。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>{array-like</em><em>, </em><em>sparse matrix} of shape</em><em> (</em><em>n_samples</em><em>, </em><em>n_features</em><em>)</em>) – Training instances to cluster.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – プロットを行なう Axes オブジェクト。これを更新する。</p></li>
+<li><p><strong>k_min</strong> (<em>int</em><em>, </em><em>default 1</em>) – エルボー法を行なう、最小のクラスタ数。</p></li>
+<li><p><strong>k_max</strong> (<em>int</em><em>, </em><em>default 10</em>) – エルボー法を行なう、最大のクラスタ数。</p></li>
+<li><p><strong>random_state</strong> (<em>int</em><em>, </em><em>RandomState instance</em><em>, </em><em>default 42</em>) – Determines random number generation for centroid initialization.
+Use an int to make the randomness deterministic.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="my_kmeans.new_euclidean_distances">
+<code class="sig-prename descclassname">my_kmeans.</code><code class="sig-name descname">new_euclidean_distances</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">X</span></em>, <em class="sig-param"><span class="n">Y</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">Y_norm_squared</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">squared</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/my_kmeans.html#new_euclidean_distances"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#my_kmeans.new_euclidean_distances" title="Permalink to this definition">¶</a></dt>
+<dd><p>k-means で用いる独自の距離関数。</p>
+<p>n_features が 3 以上で、X[:, :2] が coord_ra と coord_dec であるような入力 X
+を想定しており（Y についても同様）、coord_ra と coord_dec の 2 次元空間の
+ユークリッド距離（ルートを取ったもの）と、それ以外の特徴量の空間のユークリッド距離
+（ルートを取ったもの）の和の距離行列を返す。
+<cite>squared == True</cite> ならば、その 2 乗を取った距離行列を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>X</strong> (<em>{array-like</em><em>, </em><em>sparse matrix}</em><em>, </em><em>shape</em><em> (</em><em>n_samples_1</em><em>, </em><em>n_features</em><em>)</em>) – n_features は 3 以上で、X[:, :2] が coord_ra と coord_dec。</p></li>
+<li><p><strong>Y</strong> (<em>{array-like</em><em>, </em><em>sparse matrix}</em><em>, </em><em>shape</em><em> (</em><em>n_samples_2</em><em>, </em><em>n_features</em><em>)</em><em>,</em>) – default None
+n_features は 3 以上で、Y[:, :2] が coord_ra と coord_dec。</p></li>
+<li><p><strong>Y_norm_squared</strong> (<em>array-like</em><em>, </em><em>shape</em><em> (</em><em>n_samples_2</em><em>, </em><em>)</em><em>, </em><em>default None</em>) – 元のユークリッド距離関数（sklearn.metrics.pairwise.euclidean_distances）の
+入力を保証するためのパラメータ。本関数では使用できないため、以下のコードには
+現れていない。</p></li>
+<li><p><strong>squared</strong> (<em>boolean</em><em>, </em><em>default False</em>) – Return squared distances.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>distances</strong> – X と Y の距離行列。<cite>Y == None</cite> ならば、X と X 自身の距離行列。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>{array, sparse matrix}, shape (n_samples_1, n_samples_2)</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">_kmeans</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">pkg</span> <span class="kn">import</span> <span class="n">my_kmeans</span> <span class="k">as</span> <span class="n">mk</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">euclidean_distances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+<span class="go">                  [0, 0, 1], [1, 1, 1], [1, 2, 1]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># monkey-patch による上書き</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_kmeans</span><span class="o">.</span><span class="n">euclidean_distances</span> <span class="o">=</span> <span class="n">mk</span><span class="o">.</span><span class="n">new_euclidean_distances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">km</span> <span class="o">=</span> <span class="n">_kmeans</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">km</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="c1"># monkey-patch による変更を元に戻す</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">_kmeans</span><span class="o">.</span><span class="n">euclidean_distances</span> <span class="o">=</span> <span class="n">euclidean_distances</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">km</span> <span class="o">=</span> <span class="n">_kmeans</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">km</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="impute.html"
+                        title="previous chapter">impute</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="neighbor.html"
+                        title="next chapter">neighbor</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/my_kmeans.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="neighbor.html" title="neighbor"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="impute.html" title="impute"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, goat1010.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

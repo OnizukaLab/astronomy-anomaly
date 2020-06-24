@@ -1,0 +1,171 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>my_kmeans &#8212; astronomy-anomaly 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for my_kmeans</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">_kmeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics.pairwise</span> <span class="kn">import</span> <span class="n">check_pairwise_arrays</span><span class="p">,</span> <span class="n">euclidean_distances</span>
+
+
+<div class="viewcode-block" id="new_euclidean_distances"><a class="viewcode-back" href="../my_kmeans.html#my_kmeans.new_euclidean_distances">[docs]</a><span class="k">def</span> <span class="nf">new_euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y_norm_squared</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    k-means で用いる独自の距離関数。</span>
+<span class="sd">    </span>
+<span class="sd">    n_features が 3 以上で、X[:, :2] が coord_ra と coord_dec であるような入力 X</span>
+<span class="sd">    を想定しており（Y についても同様）、coord_ra と coord_dec の 2 次元空間の</span>
+<span class="sd">    ユークリッド距離（ルートを取ったもの）と、それ以外の特徴量の空間のユークリッド距離</span>
+<span class="sd">    （ルートを取ったもの）の和の距離行列を返す。</span>
+<span class="sd">    `squared == True` ならば、その 2 乗を取った距離行列を返す。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : {array-like, sparse matrix}, shape (n_samples_1, n_features)</span>
+<span class="sd">        n_features は 3 以上で、X[:, :2] が coord_ra と coord_dec。</span>
+<span class="sd">    Y : {array-like, sparse matrix}, shape (n_samples_2, n_features),</span>
+<span class="sd">        default None</span>
+<span class="sd">        n_features は 3 以上で、Y[:, :2] が coord_ra と coord_dec。</span>
+<span class="sd">    Y_norm_squared : array-like, shape (n_samples_2, ), default None</span>
+<span class="sd">        元のユークリッド距離関数（sklearn.metrics.pairwise.euclidean_distances）の</span>
+<span class="sd">        入力を保証するためのパラメータ。本関数では使用できないため、以下のコードには</span>
+<span class="sd">        現れていない。</span>
+<span class="sd">    squared : boolean, default False</span>
+<span class="sd">        Return squared distances.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    distances : {array, sparse matrix}, shape (n_samples_1, n_samples_2)</span>
+<span class="sd">        X と Y の距離行列。`Y == None` ならば、X と X 自身の距離行列。</span>
+<span class="sd">    </span>
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.cluster import _kmeans</span>
+<span class="sd">    &gt;&gt;&gt; from pkg import my_kmeans as mk</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.metrics.pairwise import euclidean_distances</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; X = np.array([[0, 0, 0], [1, 1, 0], [2, 1, 0],</span>
+<span class="sd">                      [0, 0, 1], [1, 1, 1], [1, 2, 1]])</span>
+<span class="sd">    &gt;&gt;&gt; # monkey-patch による上書き</span>
+<span class="sd">    &gt;&gt;&gt; _kmeans.euclidean_distances = mk.new_euclidean_distances</span>
+<span class="sd">    &gt;&gt;&gt; km = _kmeans.KMeans(n_clusters=2, random_state=42)</span>
+<span class="sd">    &gt;&gt;&gt; km.fit(X)</span>
+<span class="sd">    &gt;&gt;&gt; # monkey-patch による変更を元に戻す</span>
+<span class="sd">    &gt;&gt;&gt; _kmeans.euclidean_distances = euclidean_distances</span>
+<span class="sd">    &gt;&gt;&gt; km = _kmeans.KMeans(n_clusters=2, random_state=42)</span>
+<span class="sd">    &gt;&gt;&gt; km.fit(X)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="n">X_coord</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">Y_coord</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span> <span class="p">:</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">X_others</span> <span class="o">=</span> <span class="n">X</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span>
+    <span class="n">Y_others</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">:]</span>
+    <span class="n">distances_coord</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X_coord</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y_coord</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">distances_others</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="o">=</span><span class="n">X_others</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">Y_others</span><span class="p">,</span>
+                                           <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">distances_coord</span> <span class="o">+</span> <span class="n">distances_others</span>
+    <span class="k">return</span> <span class="n">distances</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">squared</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">distances</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="elbow"><a class="viewcode-back" href="../my_kmeans.html#my_kmeans.elbow">[docs]</a><span class="k">def</span> <span class="nf">elbow</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">k_min</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">k_max</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    エルボー法の結果を可視化する。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : {array-like, sparse matrix} of shape (n_samples, n_features)</span>
+<span class="sd">        Training instances to cluster.</span>
+<span class="sd">    ax : matplotlib.axes.Axes</span>
+<span class="sd">        プロットを行なう Axes オブジェクト。これを更新する。</span>
+<span class="sd">    k_min : int, default 1</span>
+<span class="sd">        エルボー法を行なう、最小のクラスタ数。</span>
+<span class="sd">    k_max : int, default 10</span>
+<span class="sd">        エルボー法を行なう、最大のクラスタ数。</span>
+<span class="sd">    random_state : int, RandomState instance, default 42</span>
+<span class="sd">        Determines random number generation for centroid initialization.</span>
+<span class="sd">        Use an int to make the randomness deterministic.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">_kmeans</span><span class="o">.</span><span class="n">euclidean_distances</span> <span class="o">=</span> <span class="n">new_euclidean_distances</span>
+    
+    <span class="n">sse</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k_min</span><span class="p">,</span> <span class="n">k_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">km</span> <span class="o">=</span> <span class="n">_kmeans</span><span class="o">.</span><span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">k</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+        <span class="n">km</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">sse</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">km</span><span class="o">.</span><span class="n">inertia_</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">k_min</span><span class="p">,</span> <span class="n">k_max</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="n">sse</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;number of clusters&#39;</span><span class="p">)</span>
+    <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;SSE&#39;</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, goat1010.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>

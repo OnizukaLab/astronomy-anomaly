@@ -1,0 +1,266 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>impute &#8212; astronomy-anomaly 1.0.0 documentation</title>
+    <link rel="stylesheet" href="../_static/nature.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/language_data.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Module code</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for impute</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">import</span> <span class="nn">neighbor</span> <span class="k">as</span> <span class="nn">nbr</span>
+
+
+<div class="viewcode-block" id="impute_by_time_mean"><a class="viewcode-back" href="../impute.html#impute.impute_by_time_mean">[docs]</a><span class="k">def</span> <span class="nf">impute_by_time_mean</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    時間平均による欠損値補完を行なう。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行なう m_ap30 の表。</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        時間平均により欠損値補完を行なった m_ap30 の表。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">df_mean</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_mean</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<div class="viewcode-block" id="get_moving_average_num"><a class="viewcode-back" href="../impute.html#impute.get_moving_average_num">[docs]</a><span class="k">def</span> <span class="nf">get_moving_average_num</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">width_moving_average</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    時間幅 width_moving_average の移動平均による欠損値補完を行なう際に、</span>
+<span class="sd">    指定された pandas.DataFrame のそれぞれの mjd の列に対して、</span>
+<span class="sd">    直前の何個の要素の平均を取ればよいのかを格納した numpy.ndarray を返す。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行いたい m_ap30 の表。</span>
+<span class="sd">    width_moving_average : float</span>
+<span class="sd">        移動平均の時間幅。単位は mjd。</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ma_num : numpy.ndarray</span>
+<span class="sd">        時間幅 width_moving_average の移動平均による欠損値補完を行なう際に、</span>
+<span class="sd">        指定された pandas.DataFrame のそれぞれの mjd の列に対して、</span>
+<span class="sd">        直前の何個の要素の平均を取ればよいのかのリスト。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">mjd_list</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">values</span>
+    <span class="n">mjd_diff</span> <span class="o">=</span> <span class="n">mjd_list</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">-</span> <span class="n">mjd_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">ma_num</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">empty_like</span><span class="p">(</span><span class="n">mjd_diff</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">ma_num</span><span class="p">)):</span>
+        <span class="n">cnt</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">w_tmp</span> <span class="o">=</span> <span class="n">mjd_diff</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">while</span> <span class="n">w_tmp</span> <span class="o">&lt;=</span> <span class="n">width_moving_average</span><span class="p">:</span>
+            <span class="n">cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">cnt</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">w_tmp</span> <span class="o">+=</span> <span class="n">mjd_diff</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="n">cnt</span><span class="p">]</span>
+        <span class="n">ma_num</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cnt</span>
+    <span class="k">return</span> <span class="n">ma_num</span></div>
+
+
+<div class="viewcode-block" id="impute_by_moving_average"><a class="viewcode-back" href="../impute.html#impute.impute_by_moving_average">[docs]</a><span class="k">def</span> <span class="nf">impute_by_moving_average</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">width_moving_average</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    移動平均による欠損値補完を行なう。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行なう m_ap30 の表。</span>
+<span class="sd">    width_moving_average : float</span>
+<span class="sd">        移動平均の時間幅。単位は mjd。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">ma_num</span> <span class="o">=</span> <span class="n">get_moving_average_num</span><span class="p">(</span><span class="n">df</span><span class="p">,</span>
+                                    <span class="n">width_moving_average</span><span class="o">=</span><span class="n">width_moving_average</span><span class="p">)</span>
+    <span class="c1"># 先頭の mjd を除く mjd の NaN を、その object の直前の ma_num 個の平均値で補完</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ma_num</span><span class="p">[</span><span class="n">col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">iloc</span><span class="p">[:,</span> <span class="n">col</span> \
+                                   <span class="o">-</span> <span class="n">ma_num</span><span class="p">[</span><span class="n">col</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]:</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span>
+            <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="get_spatial_mean"><a class="viewcode-back" href="../impute.html#impute.get_spatial_mean">[docs]</a><span class="k">def</span> <span class="nf">get_spatial_mean</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    object ごとに標準化した計測値の、mjd ごとのすべての object に対する平均値を、</span>
+<span class="sd">    それぞれの object の元の表現にスケールバックしたものを返す。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        m_ap30 の表。</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    df_std_mean_inv : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        object ごとに標準化した計測値の、mjd ごとのすべての object に対する平均値を、</span>
+<span class="sd">        それぞれの object の元の表現にスケールバックしたもの。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">df_std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                          <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">s_std_mean</span> <span class="o">=</span> <span class="n">df_std</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">df_std_mean</span> \
+        <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">s_std_mean</span><span class="o">.</span><span class="n">values</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]),</span>
+                       <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">df_std_mean_inv</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">df_std_mean</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                                   <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">df_std_mean_inv</span></div>
+
+
+<div class="viewcode-block" id="impute_by_spatial_mean"><a class="viewcode-back" href="../impute.html#impute.impute_by_spatial_mean">[docs]</a><span class="k">def</span> <span class="nf">impute_by_spatial_mean</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    空間平均による欠損値補完を行なう。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行なう m_ap30 の表。これが補完される。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">df_std_mean_inv</span> <span class="o">=</span> <span class="n">get_spatial_mean</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_std_mean_inv</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="impute_by_nbr"><a class="viewcode-back" href="../impute.html#impute.impute_by_nbr">[docs]</a><span class="k">def</span> <span class="nf">impute_by_nbr</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_coord</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    空間的に近傍に存在する object の、object ごとに標準化した計測値の平均値を、</span>
+<span class="sd">    それぞれの object の元の表現にスケールバックした値による欠損値補完を行なう。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行なう m_ap30 の表。これが補完される。</span>
+<span class="sd">    df_coord : pandas.DataFrame of shape (n_objects, n_features)</span>
+<span class="sd">        columns に `coord_ra` と `coord_dec` をもつ表。</span>
+<span class="sd">        df_coord.columns[1] が `coord_ra` で、</span>
+<span class="sd">        df_coord.columns[2] が `coord_dec`。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="c1"># object ごとに計測値を標準化</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">df_std</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                          <span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="c1"># それぞれの object の空間的に近傍の object の標準化された計測値の平均を、</span>
+    <span class="c1"># mjd ごとに算出</span>
+    <span class="n">neighbor_idx</span> <span class="o">=</span> <span class="n">nbr</span><span class="o">.</span><span class="n">get_neighbor_idx</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_coord</span><span class="p">)</span>
+    <span class="n">df_std_mean_nbr</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">impute_by_nbr</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df_std_mean_nbr</span><span class="p">))):</span>
+        <span class="n">df_std_mean_nbr</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_std</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">neighbor_idx</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="c1"># 得られた値を、それぞれの object の元の表現にスケールバックする</span>
+    <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+    <span class="n">scaler</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">df_std_mean_nbr_inv</span> \
+        <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">scaler</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">df_std_mean_nbr</span><span class="o">.</span><span class="n">T</span><span class="p">)</span><span class="o">.</span><span class="n">T</span><span class="p">,</span>
+                       <span class="n">index</span><span class="o">=</span><span class="n">df_std_mean_nbr</span><span class="o">.</span><span class="n">index</span><span class="p">,</span>
+                       <span class="n">columns</span><span class="o">=</span><span class="n">df_std_mean_nbr</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="c1"># これを補完する</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_std_mean_nbr_inv</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="impute_by_nbr_and_spatial_mean"><a class="viewcode-back" href="../impute.html#impute.impute_by_nbr_and_spatial_mean">[docs]</a><span class="k">def</span> <span class="nf">impute_by_nbr_and_spatial_mean</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">df_coord</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    まず空間的近傍平均により欠損値補完を行ない、</span>
+<span class="sd">    補完されなかった部分を空間平均により補完する。</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    df : pandas.DataFrame of shape (n_objects, n_mjds)</span>
+<span class="sd">        欠損値補完を行なう m_ap30 の表。これが補完される。</span>
+<span class="sd">    df_coord : pandas.DataFrame of shape (n_objects, n_features)</span>
+<span class="sd">        columns に `coord_ra` と `coord_dec` をもつ表。</span>
+<span class="sd">        df_coord.columns[1] が `coord_ra` で、</span>
+<span class="sd">        df_coord.columns[2] が `coord_dec`。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">df_std_mean_inv</span> <span class="o">=</span> <span class="n">get_spatial_mean</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+    <span class="n">impute_by_nbr</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">df_coord</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="n">df_std_mean_inv</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">astronomy-anomaly 1.0.0 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Module code</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2020, goat1010.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 3.0.4.
+    </div>
+  </body>
+</html>
