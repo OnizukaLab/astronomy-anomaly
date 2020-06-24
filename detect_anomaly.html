@@ -41,8 +41,110 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="detect-anomaly">
-<h1>detect_anomaly<a class="headerlink" href="#detect-anomaly" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-detect_anomaly">
+<span id="detect-anomaly"></span><h1>detect_anomaly<a class="headerlink" href="#module-detect_anomaly" title="Permalink to this headline">¶</a></h1>
+<dl class="py function">
+<dt id="detect_anomaly.detect_anomaly_per_period">
+<code class="sig-prename descclassname">detect_anomaly.</code><code class="sig-name descname">detect_anomaly_per_period</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="n">width_detect</span></em>, <em class="sig-param"><span class="n">width_step</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/detect_anomaly.html#detect_anomaly_per_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#detect_anomaly.detect_anomaly_per_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>入力された pandas.DataFrame に対して切り出した期間ごとに異常検知を行ない、
+異常と判定された idx、mjd_st、mjd_en を columns にもつ
+pandas.DataFrame を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_datetimes</em><em>, </em><em>n_objects</em><em>)</em>) – m_ap30 の表。</p></li>
+<li><p><strong>width_detect</strong> (<em>str</em><em>, </em><em>tuple</em><em>, </em><em>datetime.timedelta</em><em>, </em><em>DateOffset</em><em> or </em><em>None</em>) – 異常検知を行なう時間幅。</p></li>
+<li><p><strong>width_step</strong> (<em>str</em><em> or </em><em>DateOffset</em>) – 異常検知を行なうステップ幅。</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>df_outlier</strong> – 異常と判定された object の idx とその期間をリストアップしたもの。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="detect_anomaly.get_anomaly_data_period">
+<code class="sig-prename descclassname">detect_anomaly.</code><code class="sig-name descname">get_anomaly_data_period</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span><span class="p">:</span> <span class="n">pandas.core.frame.DataFrame</span></em>, <em class="sig-param"><span class="n">width_detect</span><span class="p">:</span> <span class="n">str</span></em>, <em class="sig-param"><span class="n">width_step</span><span class="p">:</span> <span class="n">str</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/detect_anomaly.html#get_anomaly_data_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#detect_anomaly.get_anomaly_data_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>異常検知を行なう期間の、データが存在する開始日と最終日を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_datetimes</em><em>, </em><em>n_objects</em><em>)</em>) – m_ap30 の表。</p></li>
+<li><p><strong>width_detect</strong> (<em>str</em><em>, </em><em>tuple</em><em>, </em><em>datetime.timedelta</em><em>, </em><em>DateOffset</em><em> or </em><em>None</em>) – 異常検知を行なう時間幅。</p></li>
+<li><p><strong>width_step</strong> (<em>str</em><em> or </em><em>DateOffset</em>) – 異常検知を行なうステップ幅。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>anomaly_data_st</strong> (<em>list of str</em>) – 異常検知を行なう期間の、データが存在する開始日。</p></li>
+<li><p><strong>anomaly_data_en</strong> (<em>list of str</em>) – 異常検知を行なう期間の、データが存在する最終日。</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="detect_anomaly.get_anomaly_period">
+<code class="sig-prename descclassname">detect_anomaly.</code><code class="sig-name descname">get_anomaly_period</code><span class="sig-paren">(</span><em class="sig-param">df: pandas.core.frame.DataFrame</em>, <em class="sig-param">width_detect: str</em>, <em class="sig-param">width_step: str) -&gt; (&lt;class 'numpy.ndarray'&gt;</em>, <em class="sig-param">&lt;class 'numpy.ndarray'&gt;</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/detect_anomaly.html#get_anomaly_period"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#detect_anomaly.get_anomaly_period" title="Permalink to this definition">¶</a></dt>
+<dd><p>異常検知を行なう期間の開始日と最終日を返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_datetimes</em><em>, </em><em>n_objects</em><em>)</em>) – m_ap30 の表。</p></li>
+<li><p><strong>width_detect</strong> (<em>str</em><em>, </em><em>tuple</em><em>, </em><em>datetime.timedelta</em><em>, </em><em>DateOffset</em><em> or </em><em>None</em>) – 異常検知を行なう時間幅。</p></li>
+<li><p><strong>width_step</strong> (<em>str</em><em> or </em><em>DateOffset</em>) – 異常検知を行なうステップ幅。</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>anomaly_st</strong> (<em>numpy.ndarray of str</em>) – 異常検知を行なう期間の開始日。</p></li>
+<li><p><strong>anomaly_en</strong> (<em>numpy.ndarray of str</em>) – 異常検知を行なう期間の最終日。</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="detect_anomaly.get_outlier_idx">
+<code class="sig-prename descclassname">detect_anomaly.</code><code class="sig-name descname">get_outlier_idx</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/detect_anomaly.html#get_outlier_idx"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#detect_anomaly.get_outlier_idx" title="Permalink to this definition">¶</a></dt>
+<dd><p>異常検知アルゴリズムを適用し、異常と判定された行ラベルを返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_objects</em><em>, </em><em>n_features</em><em>)</em>) – m_ap30 の表。</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p><strong>outlier_idx</strong> – 異常と判定された行ラベル。</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="detect_anomaly.get_y_pred">
+<code class="sig-prename descclassname">detect_anomaly.</code><code class="sig-name descname">get_y_pred</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">df</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/detect_anomaly.html#get_y_pred"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#detect_anomaly.get_y_pred" title="Permalink to this definition">¶</a></dt>
+<dd><p>異常検知アルゴリズムを適用し、異常かどうかのラベルを返す。</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>df</strong> (<em>pandas.DataFrame of shape</em><em> (</em><em>n_objects</em><em>, </em><em>n_features</em><em>)</em>) – m_ap30 の表。</p></li>
+<li><p><strong>**kwargs</strong> – Arbitrary keyword arguments.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
 </div>
 
 
