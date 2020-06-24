@@ -1,2 +1,1 @@
-# astronomy-anomaly
-astronomy anomaly detection
+# Astronomy Anomaly Detection
