@@ -3,7 +3,7 @@ import pandas as pd
 from sklearn.preprocessing import StandardScaler
 from tqdm import tqdm
 
-import neighbor as nbr
+from pkg import neighbor as nbr
 
 
 def impute_by_time_mean(df: pd.DataFrame) -> pd.DataFrame:
