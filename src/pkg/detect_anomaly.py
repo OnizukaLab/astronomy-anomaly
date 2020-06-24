@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from pandas.tseries.frequencies import to_offset
 
-import transform as tfr
+from pkg import transform as tfr
 
 
 def get_anomaly_period(
